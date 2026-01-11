@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruby Storage</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico">
+    <link rel="shortcut icon" type="image/svg+xml" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/favicon.ico">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --bg-main: #f8f9fa;
+            --bg-sidebar: #ffffff;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+            --hover-bg: #f1f3f4;
+            --shadow: 0 1px 3px rgba(60,64,67,.3);
+            --shadow-lg: 0 4px 16px rgba(60,64,67,.15);
+        }
+        
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+        
+        .logo-icon {
+            font-size: 32px;
+            margin-right: 12px;
+        }
+        
+        .logo-text {
+            font-size: 22px;
+            font-weight: 500;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .new-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+        }
+        
+        .new-button:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .nav-item:hover {
+            background: var(--hover-bg);
+        }
+        
+        .nav-item.active {
+            background: #e8f0fe;
+            color: var(--primary);
+        }
+        
+        .nav-item-icon {
+            margin-right: 16px;
+            font-size: 20px;
+        }
+        
+        .storage-info {
+            margin-top: auto;
+            padding: 16px;
+            background: var(--hover-bg);
+            border-radius: 12px;
+        }
+        
+        .storage-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+        
+        .storage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+        
+        /* Main content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            height: 64px;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+        }
+        
+        .search-bar {
+            flex: 1;
+            max-width: 720px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 48px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--hover-bg);
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            font-size: 20px;
+        }
+        
+        .icon-button:hover {
+            background: var(--hover-bg);
+        }
+        
+        .toolbar {
+            padding: 16px 24px;
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: var(--hover-bg);
+            border-radius: 8px;
+        }
+        
+        .view-toggle button {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 20px;
+            transition: background 0.2s;
+        }
+        
+        .view-toggle button.active {
+            background: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .sort-dropdown {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .breadcrumb-item {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .breadcrumb-item:hover {
+            color: var(--primary);
+        }
+        
+        /* Grid View */
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .file-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            overflow: hidden;
+        }
+        
+        .file-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        
+        .file-card-preview {
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--hover-bg);
+            font-size: 56px;
+            position: relative;
+        }
+        
+        .file-card-checkbox {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 24px;
+            height: 24px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .file-card:hover .file-card-checkbox {
+            opacity: 1;
+        }
+        
+        .file-card-menu {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .file-card:hover .file-card-menu {
+            opacity: 1;
+        }
+        
+        .file-card-info {
+            padding: 12px;
+        }
+        
+        .file-card-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .file-card-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        /* List View */
+        .files-list {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .files-list.active {
+            display: block;
+        }
+        
+        .list-header {
+            display: grid;
+            grid-template-columns: 40px 1fr 150px 150px 100px;
+            padding: 12px 16px;
+            background: var(--hover-bg);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .list-item {
+            display: grid;
+            grid-template-columns: 40px 1fr 150px 150px 100px;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-color);
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .list-item:hover {
+            background: var(--hover-bg);
+        }
+        
+        .list-item-icon {
+            font-size: 24px;
+        }
+        
+        .list-item-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        
+        /* Drag & Drop */
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 48px;
+            text-align: center;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: #e8f0fe;
+        }
+        
+        .drop-zone-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .drop-zone-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .drop-zone-hint {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            padding: 8px 0;
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .context-menu.active {
+            display: block;
+        }
+        
+        .context-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .context-menu-item:hover {
+            background: var(--hover-bg);
+        }
+        
+        .context-menu-item.danger {
+            color: #d93025;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .modal-body {
+            margin-bottom: 24px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--hover-bg);
+        }
+        
+        /* Snackbar */
+        .snackbar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #323232;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s;
+            z-index: 3000;
+        }
+        
+        .snackbar.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Loading */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #dadce0;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #bdc1c6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">💎</div>
+            <div class="logo-text">Ruby</div>
+        </div>
+        
+        <button class="new-button" onclick="document.getElementById('fileInput').click()">
+            <span style="font-size: 20px;">➕</span>
+            <span>Новый</span>
+        </button>
+        <input type="file" id="fileInput" style="display: none" multiple onchange="uploadFiles(this.files)">
+        
+        <div class="nav-item active" onclick="loadFiles('')">
+            <span class="nav-item-icon">📁</span>
+            <span>Мои файлы</span>
+        </div>
+        
+        <div class="nav-item" onclick="filterRecent()">
+            <span class="nav-item-icon">🕐</span>
+            <span>Недавние</span>
+        </div>
+        
+        <div class="storage-info">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Хранилище</div>
+            <div id="storageText" style="font-size: 14px; font-weight: 500;">Загрузка...</div>
+            <div class="storage-bar">
+                <div class="storage-fill" id="storageFill" style="width: 0%"></div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-secondary);" id="storageDetails">Подсчет...</div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main">
+        <!-- Header -->
+        <div class="header">
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Поиск в Ruby Storage" id="searchInput" onkeyup="searchFiles(this.value)">
+            </div>
+            
+            <div class="header-actions">
+                <button class="icon-button" title="Справка">❓</button>
+                <button class="icon-button" title="Настройки">⚙️</button>
+                <button class="icon-button" onclick="location.href='/logout'" title="Выход">🚪</button>
+            </div>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="view-toggle">
+                <button class="active" onclick="setView('grid')" id="gridViewBtn">📊</button>
+                <button onclick="setView('list')" id="listViewBtn">📋</button>
+            </div>
+            
+            <select class="sort-dropdown" id="sortDropdown" onchange="sortFiles(this.value)">
+                <option value="name">По имени</option>
+                <option value="date">По дате</option>
+                <option value="size">По размеру</option>
+                <option value="type">По типу</option>
+            </select>
+            
+            <button class="btn btn-secondary" onclick="showCreateFolderModal()" style="margin-left: auto;">
+                📁 Создать папку
+            </button>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb" id="breadcrumb"></div>
+            
+            <!-- Drop Zone -->
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">☁️</div>
+                <div class="drop-zone-text">Перетащите файлы сюда</div>
+                <div class="drop-zone-hint">или нажмите "Новый" для загрузки</div>
+            </div>
+            
+            <!-- Files Grid -->
+            <div class="files-grid" id="filesGrid"></div>
+            
+            <!-- Files List -->
+            <div class="files-list" id="filesList">
+                <div class="list-header">
+                    <div></div>
+                    <div>Название</div>
+                    <div>Изменено</div>
+                    <div>Размер</div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="downloadContextItem()">
+            <span>⬇️</span>
+            <span>Скачать</span>
+        </div>
+        <div class="context-menu-item" onclick="renameContextItem()">
+            <span>✏️</span>
+            <span>Переименовать</span>
+        </div>
+        <div class="context-menu-item danger" onclick="deleteContextItem()">
+            <span>🗑️</span>
+            <span>Удалить</span>
+        </div>
+    </div>
+    
+    <!-- Create Folder Modal -->
+    <div class="modal" id="createFolderModal">
+        <div class="modal-content">
+            <div class="modal-header">Создать новую папку</div>
+            <div class="modal-body">
+                <input type="text" class="input-field" id="folderNameInput" placeholder="Название папки">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideCreateFolderModal()">Отмена</button>
+                <button class="btn btn-primary" onclick="createFolder()">Создать</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Snackbar -->
+    <div class="snackbar" id="snackbar"></div>
+    
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+    
+    <script>
+        let currentPath = '';
+        let currentView = 'grid';
+        let allFiles = [];
+        let contextMenuItem = null;
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function getFileIcon(item) {
+            if (item.is_dir) return '📁';
+            const ext = item.name.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '📄', 'doc': '📝', 'docx': '📝', 'txt': '📝',
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+                'mp4': '🎬', 'avi': '🎬', 'mov': '🎬',
+                'mp3': '🎵', 'wav': '🎵',
+                'zip': '📦', 'rar': '📦', '7z': '📦',
+                'xls': '📊', 'xlsx': '📊',
+                'ppt': '📊', 'pptx': '📊'
+            };
+            return icons[ext] || '📄';
+        }
+        
+        function showSnackbar(message) {
+            const snackbar = document.getElementById('snackbar');
+            snackbar.textContent = message;
+            snackbar.classList.add('show');
+            setTimeout(() => snackbar.classList.remove('show'), 3000);
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').classList.remove('active');
+        }
+        
+        function updateStorageInfo() {
+            fetch('/api/storage_info')
+                .then(r => r.json())
+                .then(data => {
+                    const percent = ((data.used / data.total) * 100).toFixed(1);
+                    document.getElementById('storageText').textContent = `${formatBytes(data.used)} из ${formatBytes(data.total)}`;
+                    document.getElementById('storageFill').style.width = percent + '%';
+                    document.getElementById('storageDetails').textContent = `${percent}% использовано`;
+                });
+        }
+        
+        function loadFiles(path = '') {
+            currentPath = path;
+            showLoading();
+            
+            fetch(`/api/files?path=${encodeURIComponent(path)}`)
+                .then(r => r.json())
+                .then(data => {
+                    allFiles = data.items;
+                    renderBreadcrumb(path);
+                    renderFiles(allFiles);
+                    hideLoading();
+                });
+        }
+        
+        function renderBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const parts = path ? path.split('/') : [];
+            
+            let html = '<span class="breadcrumb-item" onclick="loadFiles(\'\')">🏠 Главная</span>';
+            let currentPath = '';
+            
+            parts.forEach((part, index) => {
+                currentPath += (currentPath ? '/' : '') + part;
+                const pathCopy = currentPath;
+                html += ` <span>›</span> <span class="breadcrumb-item" onclick="loadFiles('${pathCopy}')">${part}</span>`;
+            });
+            
+            breadcrumb.innerHTML = html;
+        }
+        
+        function renderFiles(items) {
+            if (currentView === 'grid') {
+                renderGridView(items);
+            } else {
+                renderListView(items);
+            }
+        }
+        
+        function renderGridView(items) {
+            const grid = document.getElementById('filesGrid');
+            const list = document.getElementById('filesList');
+            
+            grid.style.display = 'grid';
+            list.style.display = 'none';
+            
+            grid.innerHTML = items.map(item => `
+                <div class="file-card" onclick="handleItemClick('${item.path}', ${item.is_dir})" oncontextmenu="showContextMenu(event, '${item.path}', ${item.is_dir}); return false;">
+                    <div class="file-card-preview">
+                        <input type="checkbox" class="file-card-checkbox">
+                        <button class="icon-button file-card-menu" onclick="event.stopPropagation(); showContextMenu(event, '${item.path}', ${item.is_dir})">⋮</button>
+                        <span style="font-size: 56px;">${getFileIcon(item)}</span>
+                    </div>
+                    <div class="file-card-info">
+                        <div class="file-card-name" title="${item.name}">${item.name}</div>
+                        <div class="file-card-meta">${item.modified}${!item.is_dir ? ' • ' + formatBytes(item.size) : ''}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderListView(items) {
+            const grid = document.getElementById('filesGrid');
+            const list = document.getElementById('filesList');
+            
+            grid.style.display = 'none';
+            list.style.display = 'block';
+            
+            const itemsHtml = items.map(item => `
+                <div class="list-item" onclick="handleItemClick('${item.path}', ${item.is_dir})" oncontextmenu="showContextMenu(event, '${item.path}', ${item.is_dir}); return false;">
+                    <div><input type="checkbox"></div>
+                    <div class="list-item-name">
+                        <span class="list-item-icon">${getFileIcon(item)}</span>
+                        <span>${item.name}</span>
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 13px;">${item.modified}</div>
+                    <div style="color: var(--text-secondary); font-size: 13px;">${!item.is_dir ? formatBytes(item.size) : '—'}</div>
+                    <div>
+                        <button class="icon-button" onclick="event.stopPropagation(); showContextMenu(event, '${item.path}', ${item.is_dir})">⋮</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            list.innerHTML = `
+                <div class="list-header">
+                    <div></div>
+                    <div>Название</div>
+                    <div>Изменено</div>
+                    <div>Размер</div>
+                    <div></div>
+                </div>
+                ${itemsHtml}
+            `;
+        }
+        
+        function setView(view) {
+            currentView = view;
+            document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+            document.getElementById('listViewBtn').classList.toggle('active', view === 'list');
+            renderFiles(allFiles);
+        }
+        
+        function handleItemClick(path, isDir) {
+            if (isDir) {
+                loadFiles(path);
+            } else {
+                downloadFile(path);
+            }
+        }
+        
+        function sortFiles(method) {
+            const sorted = [...allFiles].sort((a, b) => {
+                if (method === 'name') return a.name.localeCompare(b.name);
+                if (method === 'date') return new Date(b.modified) - new Date(a.modified);
+                if (method === 'size') return b.size - a.size;
+                if (method === 'type') return getFileIcon(a).localeCompare(getFileIcon(b));
+                return 0;
+            });
+            renderFiles(sorted);
+        }
+        
+        function searchFiles(query) {
+            if (!query) {
+                renderFiles(allFiles);
+                return;
+            }
+            
+            const filtered = allFiles.filter(item => 
+                item.name.toLowerCase().includes(query.toLowerCase())
+            );
+            renderFiles(filtered);
+        }
+        
+        function filterRecent() {
+            const sorted = [...allFiles].sort((a, b) => 
+                new Date(b.modified) - new Date(a.modified)
+            ).slice(0, 20);
+            renderFiles(sorted);
+            showSnackbar('Показаны последние 20 файлов');
+        }
+        
+        function uploadFiles(files) {
+            showLoading();
+            let completed = 0;
+            
+            Array.from(files).forEach(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', currentPath);
+                
+                fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                }).then(() => {
+                    completed++;
+                    if (completed === files.length) {
+                        hideLoading();
+                        loadFiles(currentPath);
+                        updateStorageInfo();
+                        showSnackbar(`Загружено файлов: ${files.length}`);
+                    }
+                });
+            });
+        }
+        
+        function showCreateFolderModal() {
+            document.getElementById('createFolderModal').classList.add('active');
+            document.getElementById('folderNameInput').focus();
+        }
+        
+        function hideCreateFolderModal() {
+            document.getElementById('createFolderModal').classList.remove('active');
+            document.getElementById('folderNameInput').value = '';
+        }
+        
+        function createFolder() {
+            const name = document.getElementById('folderNameInput').value.trim();
+            if (!name) return;
+            
+            fetch('/api/create_folder', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({path: currentPath, name: name})
+            }).then(() => {
+                hideCreateFolderModal();
+                loadFiles(currentPath);
+                showSnackbar('Папка создана');
+            });
+        }
+        
+        function showContextMenu(event, path, isDir) {
+            event.preventDefault();
+            const menu = document.getElementById('contextMenu');
+            contextMenuItem = {path, isDir};
+            
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+            menu.classList.add('active');
+            
+            setTimeout(() => {
+                document.addEventListener('click', hideContextMenu);
+            }, 10);
+        }
+        
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('active');
+            document.removeEventListener('click', hideContextMenu);
+        }
+        
+        function downloadContextItem() {
+            if (contextMenuItem && !contextMenuItem.isDir) {
+                downloadFile(contextMenuItem.path);
+            }
+            hideContextMenu();
+        }
+        
+        function deleteContextItem() {
+            if (!contextMenuItem) return;
+            
+            if (!confirm(`Удалить ${contextMenuItem.isDir ? 'папку' : 'файл'}?`)) return;
+            
+            fetch('/api/delete', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({path: contextMenuItem.path})
+            }).then(() => {
+                loadFiles(currentPath);
+                updateStorageInfo();
+                showSnackbar('Удалено');
+            });
+            
+            hideContextMenu();
+        }
+        
+        function downloadFile(path) {
+            window.location.href = `/api/download/${path}`;
+        }
+        
+        // Drag & Drop
+        const dropZone = document.getElementById('dropZone');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('drag-over');
+            });
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('drag-over');
+            });
+        });
+        
+        dropZone.addEventListener('drop', e => {
+            uploadFiles(e.dataTransfer.files);
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            if (e.key === 'Escape') {
+                hideCreateFolderModal();
+                hideContextMenu();
+            }
+        });
+        
+        // Init
+        loadFiles();
+        updateStorageInfo();
+        setInterval(updateStorageInfo, 30000);
+    </script>
+</body>
+</html>
